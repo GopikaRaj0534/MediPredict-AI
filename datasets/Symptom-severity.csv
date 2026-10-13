@@ -1,0 +1,16 @@
+Symptom,Weight
+fever,1
+cough,2
+fatigue,6
+headache,1
+vomiting,1
+nausea,5
+chest_pain,4
+shortness_of_breath,6
+joint_pain,2
+skin_rash,4
+abdominal_pain,1
+dizziness,4
+sore_throat,1
+chills,6
+sweating,3
