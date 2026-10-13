@@ -1,0 +1,33 @@
+{# ------------------------------------------------------------------
+   FEATURE 4 — Floating AI Health Chatbot
+   Included once from base.html so it appears on every logged-in page.
+   ------------------------------------------------------------------ #}
+{% if session.get('user_email') %}
+<button type="button" id="chatbotLauncher" class="chatbot-launcher" aria-label="Open health chatbot">
+  💬
+</button>
+
+<div id="chatbotWindow" class="chatbot-window" role="dialog" aria-label="MediPredict AI Health Chatbot">
+  <div class="chatbot-header">
+    <div>
+      <p class="chatbot-header__title">Health Assistant</p>
+      <p class="chatbot-header__sub">Powered by Gemini &middot; not a diagnosis</p>
+    </div>
+    <button type="button" id="chatbotClose" class="chatbot-header__close" aria-label="Close chatbot">✕</button>
+  </div>
+
+  <div id="chatbotMessages" class="chatbot-messages">
+    <div class="chatbot-bubble chatbot-bubble--bot">
+      Hi{% if session.get('user_name') %} {{ session.get('user_name') }}{% endif %}! I'm your MediPredict
+      health assistant. Ask me anything about nutrition, exercise, or general wellness —
+      I can also talk through your most recent prediction with you.
+    </div>
+  </div>
+
+  <form id="chatbotForm" class="chatbot-form">
+    <textarea id="chatbotInput" class="chatbot-input" rows="1"
+              placeholder="Ask a health question..." maxlength="1000"></textarea>
+    <button type="submit" class="chatbot-send" aria-label="Send message">➤</button>
+  </form>
+</div>
+{% endif %}

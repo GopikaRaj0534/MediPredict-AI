@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Personal Health Profile — MediPredict AI{% endblock %}
+
+{% block content %}
+<section class="form-page">
+  <p class="form-page__eyebrow">Health Records</p>
+  <h1>Personal Health Profile</h1>
+  <p class="form-page__sub">
+    Keep your personal health measurements up to date. Your profile automatically pre-fills
+    screening assessments and personalizes your weekly physical activity plan.
+  </p>
+
+  <form method="POST" action="{{ url_for('profile') }}" class="profile-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="form-grid">
+
+      <!-- Real Age -->
+      <div class="field">
+        <label for="age">Age (Years)</label>
+        <p class="field__help">Adult screening range: 18 to 120 years.</p>
+        <input type="number" id="age" name="age" min="18" max="120" placeholder="e.g. 42"
+               value="{{ profile.age if profile and profile.age else '' }}" required>
+      </div>
+
+      <!-- Gender -->
+      <div class="field">
+        <label for="gender">Gender</label>
+        <select id="gender" name="gender" required>
+          <option value="" disabled {% if not profile or not profile.gender %}selected{% endif %}>Select Gender</option>
+          <option value="Female" {% if profile and profile.gender == 'Female' %}selected{% endif %}>Female</option>
+          <option value="Male" {% if profile and profile.gender == 'Male' %}selected{% endif %}>Male</option>
+          <option value="Other" {% if profile and profile.gender == 'Other' %}selected{% endif %}>Other</option>
+        </select>
+      </div>
+
+      <!-- Height (cm) -->
+      <div class="field">
+        <label for="height_cm">Height (cm)</label>
+        <p class="field__help">Height in centimetres (e.g. 175 cm).</p>
+        <input type="number" step="0.1" id="height_cm" name="height_cm" min="50" max="250" placeholder="e.g. 170"
+               value="{{ profile.height_cm if profile and profile.height_cm else '' }}" required>
+      </div>
+
+      <!-- Weight (kg) -->
+      <div class="field">
+        <label for="weight_kg">Weight (kg)</label>
+        <p class="field__help">Body weight in kilograms (e.g. 70 kg).</p>
+        <input type="number" step="0.1" id="weight_kg" name="weight_kg" min="20" max="300" placeholder="e.g. 68"
+               value="{{ profile.weight_kg if profile and profile.weight_kg else '' }}" required>
+      </div>
+
+      <!-- Calculated BMI Card -->
+      <div class="field field--full">
+        <div class="result-card" style="margin: 0; background: var(--paper-dim); border: 1px solid var(--line);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h3 style="margin: 0; font-size: 1.05rem;">Calculated Body Mass Index (BMI)</h3>
+              <p style="margin: 4px 0 0 0; color: var(--color-muted, #5c6b65); font-size: 0.85rem;">
+                Calculated on the server using: <code>weight (kg) / (height (m))²</code>
+              </p>
+            </div>
+            <div>
+              {% if profile and profile.bmi %}
+                <span style="font-size: 1.8rem; font-weight: 700; color: var(--color-ink, #10241f);">
+                  {{ "%.1f"|format(profile.bmi) }}
+                </span>
+                <span class="result-badge {% if profile.bmi < 18.5 or profile.bmi >= 30 %}result-badge--high{% elif profile.bmi >= 25 %}result-badge--medium{% else %}result-badge--low{% endif %}" style="margin-left: 8px;">
+                  {% if profile.bmi < 18.5 %}Underweight{% elif profile.bmi < 25.0 %}Normal Weight{% elif profile.bmi < 30.0 %}Overweight{% else %}Obese Range{% endif %}
+                </span>
+              {% else %}
+                <span style="color: var(--color-muted, #5c6b65); font-style: italic;">Save height and weight to calculate</span>
+              {% endif %}
+            </div>
+          </div>
+          <small style="display: block; margin-top: 8px; color: var(--color-muted, #5c6b65); font-size: 0.78rem;">
+            Note: BMI is an informational screening index. It does not directly diagnose disease or measure body fat distribution.
+          </small>
+        </div>
+      </div>
+
+      <!-- Smoking Status -->
+      <div class="field">
+        <label for="smoking_status">Smoking Status</label>
+        <select id="smoking_status" name="smoking_status" required>
+          <option value="Never Smoked" {% if not profile or profile.smoking_status == 'Never Smoked' %}selected{% endif %}>Never Smoked</option>
+          <option value="Former Smoker" {% if profile and profile.smoking_status == 'Former Smoker' %}selected{% endif %}>Former Smoker</option>
+          <option value="Current Smoker" {% if profile and profile.smoking_status == 'Current Smoker' %}selected{% endif %}>Current Smoker</option>
+        </select>
+      </div>
+
+      <!-- Physical Activity Level -->
+      <div class="field">
+        <label for="physical_activity">Physical Activity Level</label>
+        <select id="physical_activity" name="physical_activity" required>
+          <option value="Sedentary" {% if profile and profile.physical_activity == 'Sedentary' %}selected{% endif %}>Sedentary (Little to no regular exercise)</option>
+          <option value="Lightly Active" {% if profile and profile.physical_activity == 'Lightly Active' %}selected{% endif %}>Lightly Active (Light exercise 1-3 days/week)</option>
+          <option value="Moderately Active" {% if not profile or profile.physical_activity == 'Moderately Active' %}selected{% endif %}>Moderately Active (Moderate exercise 3-5 days/week)</option>
+          <option value="Very Active" {% if profile and profile.physical_activity == 'Very Active' %}selected{% endif %}>Very Active (Hard exercise 6-7 days/week)</option>
+        </select>
+      </div>
+
+      <!-- Existing Conditions -->
+      <div class="field field--full">
+        <label for="existing_conditions">Existing Health Conditions</label>
+        <p class="field__help">List any diagnosed conditions (e.g. Hypertension, High Cholesterol, Asthma, None).</p>
+        <input type="text" id="existing_conditions" name="existing_conditions" maxlength="250"
+               placeholder="e.g. Mild Hypertension, None"
+               value="{{ profile.existing_conditions if profile and profile.existing_conditions else '' }}">
+      </div>
+
+      <!-- Family History -->
+      <div class="field field--full">
+        <label for="family_history">Family Medical History</label>
+        <p class="field__help">Key conditions present in immediate family (e.g. Type 2 Diabetes, Coronary Heart Disease, Stroke, None).</p>
+        <input type="text" id="family_history" name="family_history" maxlength="250"
+               placeholder="e.g. Type 2 Diabetes, Stroke, None"
+               value="{{ profile.family_history if profile and profile.family_history else '' }}">
+      </div>
+
+    </div>
+
+    <div style="margin-top: 1.5rem; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+      <button type="submit" class="btn btn--primary btn--large">Save Health Profile</button>
+      <a href="{{ url_for('exercise_plan_view') }}" class="btn btn--ghost">View Exercise Plan →</a>
+      <a href="{{ url_for('dashboard') }}" class="btn btn--text">Return to Dashboard</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

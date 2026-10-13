@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Model Performance & Transparency — MediPredict AI{% endblock %}
+
+{% block content %}
+<section class="form-page" style="max-width: 1000px;">
+  <p class="form-page__eyebrow">Machine Learning Transparency</p>
+  <h1>Model Evaluation & Performance</h1>
+  <p class="form-page__sub">
+    MediPredict AI uses empirical evaluations on real population health datasets. Below are the actual measured performance metrics, algorithm comparison results, dataset attributes, and confusion matrices for each disease risk module.
+  </p>
+
+  <div class="result-card" style="margin-bottom: 2rem;">
+    <h3>Methodology & Validation Summary</h3>
+    <p>
+      Models are trained using standard 80/20 train/test splits with cross-validation and class imbalance handling (class weighting). Metrics are reported on held-out test data. No synthetic predictions or fabricated accuracy scores are used.
+    </p>
+  </div>
+
+  {% for key, model_info in metrics.items() %}
+    {% if key != 'symptom' %}
+    <div class="result-card" style="margin-bottom: 2.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <h2>{{ key.title() }} Risk Model</h2>
+        <span class="result-badge result-badge--low" style="font-size: 0.85rem;">Version {{ model_info.model_version }}</span>
+      </div>
+
+      <div class="exercise-summary" style="margin: 1rem 0;">
+        <div class="exercise-stat">Dataset<b>{{ model_info.dataset_name }}</b></div>
+        <div class="exercise-stat">Samples<b>{{ "{:,}".format(model_info.samples) }}</b></div>
+        <div class="exercise-stat">Features<b>{{ model_info.features_count }}</b></div>
+        <div class="exercise-stat">Active Algorithm<b>{{ model_info.selected_model }}</b></div>
+      </div>
+
+      <h3 style="margin-top: 1.5rem;">Algorithm Comparison Table</h3>
+      <div style="overflow-x: auto;">
+        <table class="history-table" style="width: 100%; margin-top: 0.5rem;">
+          <thead>
+            <tr>
+              <th>Algorithm</th>
+              <th>Accuracy</th>
+              <th>Precision</th>
+              <th>Recall</th>
+              <th>F1-Score</th>
+              <th>ROC-AUC</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for algo_name, algo_metrics in model_info.algorithms.items() %}
+            <tr {% if algo_name == model_info.selected_model %}style="background: rgba(225, 82, 60, 0.08); font-weight: 600;"{% endif %}>
+              <td>{{ algo_name }}</td>
+              <td>{{ "%.2f"|format(algo_metrics.accuracy * 100) }}%</td>
+              <td>{{ "%.2f"|format(algo_metrics.precision * 100) }}%</td>
+              <td>{{ "%.2f"|format(algo_metrics.recall * 100) }}%</td>
+              <td>{{ "%.2f"|format(algo_metrics.f1_score * 100) }}%</td>
+              <td>{{ "%.2f"|format(algo_metrics.roc_auc * 100) }}%</td>
+              <td>
+                {% if algo_name == model_info.selected_model %}
+                  <span style="color: var(--color-pulse, #E1523C);">✓ Currently Used</span>
+                {% else %}
+                  <span>Evaluated</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="margin-top: 1.5rem;">Active Model Confusion Matrix (Held-out Test Set)</h3>
+      {% set active_algo = model_info.algorithms[model_info.selected_model] %}
+      <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+        <div style="flex: 1; min-width: 250px; background: var(--color-surface-dim, #f8f9fa); padding: 1rem; border-radius: 8px;">
+          <p style="font-weight: 600; margin-bottom: 0.5rem;">Confusion Matrix Matrix (Actual vs Predicted):</p>
+          <table style="width: 100%; text-align: center; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #ccc;">
+              <th></th>
+              <th>Pred Negative</th>
+              <th>Pred Positive</th>
+            </tr>
+            <tr>
+              <td style="font-weight: 600;">Actual Neg</td>
+              <td>{{ active_algo.confusion_matrix[0][0] }}</td>
+              <td>{{ active_algo.confusion_matrix[0][1] }}</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 600;">Actual Pos</td>
+              <td>{{ active_algo.confusion_matrix[1][0] }}</td>
+              <td>{{ active_algo.confusion_matrix[1][1] }}</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div style="flex: 1; min-width: 280px;">
+          <p style="font-weight: 600; margin-bottom: 0.5rem;">Top Key Feature Weightings:</p>
+          <ul class="exercise-safety" style="padding-left: 1rem;">
+            {% for feat, weight in active_algo.feature_importances.items() %}
+              {% if loop.index <= 5 %}
+                <li><strong>{{ feat }}:</strong> {{ "%.1f"|format(weight * 100) }}% relative weight</li>
+              {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+    </div>
+    {% endif %}
+  {% endfor %}
+
+  <div class="result-card">
+    <h2>Symptom Checker Model Performance</h2>
+    <div class="exercise-summary" style="margin: 1rem 0;">
+      <div class="exercise-stat">Dataset<b>Multi-Symptom Disease Dataset</b></div>
+      <div class="exercise-stat">Samples<b>{{ metrics.symptom.samples }}</b></div>
+      <div class="exercise-stat">Features<b>{{ metrics.symptom.features_count }} Symptoms</b></div>
+      <div class="exercise-stat">Model Accuracy<b>{{ "%.1f"|format(metrics.symptom.accuracy * 100) }}%</b></div>
+    </div>
+  </div>
+
+  <div class="result-actions" style="margin-top: 2rem;">
+    <a href="{{ url_for('dashboard') }}" class="btn btn--primary">Back to Dashboard</a>
+  </div>
+</section>
+{% endblock %}

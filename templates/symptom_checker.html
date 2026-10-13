@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Symptom Checker — MediPredict AI{% endblock %}
+
+{% block content %}
+<section class="form-page" style="max-width: 720px;">
+  <p class="form-page__eyebrow">Symptom Checker</p>
+  <h1>What are you feeling right now?</h1>
+  <p class="form-page__sub">Select every symptom that applies — the more you select, the sharper the read.</p>
+
+  <form method="POST" action="{{ url_for('predict_symptom') }}">
+    <div class="symptom-grid">
+      {% for symptom in all_symptoms %}
+      <label class="symptom-chip">
+        <input type="checkbox" name="symptoms" value="{{ symptom }}">
+        <span>{{ symptom.replace('_', ' ') }}</span>
+      </label>
+      {% else %}
+      <p>No symptom list found. Make sure <code>models/all_symptoms.pkl</code> exists.</p>
+      {% endfor %}
+    </div>
+    <button type="submit" class="btn btn--primary btn--full">Check my symptoms</button>
+  </form>
+</section>
+{% endblock %}

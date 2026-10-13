@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Login — MediPredict AI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<section class="form-page">
+
+    <p class="form-page__eyebrow">
+        Welcome Back 👋
+    </p>
+
+    <h1>
+        Sign In to MediPredict AI
+    </h1>
+
+    <p class="form-page__sub">
+        Access your personalized health dashboard, view your previous predictions,
+        and continue monitoring your health with AI-powered disease prediction.
+    </p>
+
+    <form method="POST" action="{{ url_for('login') }}">
+
+        <div class="field">
+
+            <label for="email">
+                Email Address
+            </label>
+
+            <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Enter your email"
+                required>
+
+        </div>
+
+        <div class="field">
+
+            <label for="password">
+                Password
+            </label>
+
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                required>
+
+        </div>
+
+        <button
+            type="submit"
+            class="btn btn--primary btn--full">
+
+            Login
+
+        </button>
+
+    </form>
+
+    <div style="margin-top:25px;text-align:center;">
+
+        <p>
+
+            Don't have an account?
+
+            <a href="{{ url_for('register') }}">
+
+                Register Here
+
+            </a>
+
+        </p>
+
+    </div>
+
+</section>
+
+{% endblock %}

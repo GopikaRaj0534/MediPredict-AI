@@ -1,0 +1,23 @@
+/* dashboard.css
+   Small dashboard-only refinements layered on top of style.css.
+   Kept separate so dashboard-specific tweaks never touch the
+   shared design system in style.css. */
+
+.dash-card {
+  animation: dash-card-in 0.5s ease both;
+}
+.dash__grid .dash-card:nth-child(1) { animation-delay: 0.02s; }
+.dash__grid .dash-card:nth-child(2) { animation-delay: 0.06s; }
+.dash__grid .dash-card:nth-child(3) { animation-delay: 0.10s; }
+.dash__grid .dash-card:nth-child(4) { animation-delay: 0.14s; }
+.dash__grid .dash-card:nth-child(5) { animation-delay: 0.18s; }
+.dash__grid .dash-card:nth-child(6) { animation-delay: 0.22s; }
+
+@keyframes dash-card-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.history-table tbody tr:hover {
+  background: rgba(225, 82, 60, 0.05);
+}

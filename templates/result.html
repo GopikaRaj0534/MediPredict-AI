@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Symptom Screening Result — MediPredict AI{% endblock %}
+
+{% block content %}
+<section class="result-page">
+  <!-- Emergency Safety Warning Banner -->
+  {% if result.emergency_warning %}
+  <div class="result-card" style="border: 2px solid #d9534f; background: #fff5f5; margin-bottom: 1.5rem;">
+    <div style="display: flex; gap: 12px; align-items: flex-start;">
+      <span style="font-size: 1.8rem;">🚨</span>
+      <div>
+        <h3 style="color: #d9534f; margin: 0 0 6px 0;">Urgent Medical Attention Warning</h3>
+        <p style="margin: 0; font-weight: 500; font-size: 0.95rem; color: #333;">
+          Some of the symptoms selected (e.g. chest pain, shortness of breath, or severe acute symptoms) may require immediate medical evaluation. Please contact local emergency medical services or visit the nearest emergency healthcare facility right away.
+        </p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <span class="result-badge result-badge--na">Symptom Checker</span>
+  <h1>Primary Pattern Match: {{ result.disease }}</h1>
+
+  {% if result.confidence %}
+    <div class="risk-meter">
+      <div class="risk-meter__track">
+        <div class="risk-meter__fill risk-meter__fill--medium" style="width: {{ result.confidence }}%;"></div>
+      </div>
+      <div class="risk-meter__label">
+        <span>Model Pattern Confidence</span>
+        <span>{{ result.confidence }}%</span>
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Differential Conditions List (Phase 9) -->
+  {% if result.possible_conditions and result.possible_conditions|length > 0 %}
+  <div class="result-card">
+    <h3>Possible Conditions (Differential Candidates)</h3>
+    <p style="font-size: 0.9rem; color: var(--color-muted, #5c6b65); margin-bottom: 1rem;">
+      Based on the symptoms provided, the model evaluated potential condition pattern matches supported by dataset training:
+    </p>
+
+    <div style="display: grid; gap: 12px;">
+      {% for item in result.possible_conditions %}
+      <div style="background: var(--color-surface-dim, #f4f6f5); padding: 12px 16px; border-radius: 8px; border-left: 4px solid var(--color-pulse, #E1523C);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <strong style="font-size: 1.05rem;">{{ loop.index }}. {{ item.disease }}</strong>
+          <span style="font-weight: 600; font-size: 0.9rem; color: var(--color-pulse, #E1523C);">Match: {{ item.confidence }}%</span>
+        </div>
+        <p style="margin: 0; font-size: 0.9rem; color: var(--color-ink, #10241f);">{{ item.description }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if result.precautions %}
+  <div class="result-card">
+    <h3>Recommended Precautions & Next Steps</h3>
+    <ul>
+      {% for item in result.precautions %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <div class="result-card">
+    <h3>Download your report</h3>
+    <p>Get a PDF summary of this symptom assessment to save or share with your doctor.</p>
+    <a href="{{ url_for('download_report') }}" class="btn btn--primary report-download">
+      ⬇ Download PDF Report
+    </a>
+  </div>
+
+  <div class="result-card" id="hospitalsSection">
+    <div class="hospitals-intro">
+      <h3>Nearby hospitals</h3>
+      <button type="button" id="findHospitalsBtn" class="btn btn--ghost">Find hospitals near me</button>
+    </div>
+    <p class="hospitals-status" id="hospitalsStatus">
+      We'll ask your browser for permission to use your location.
+    </p>
+    <div class="hospitals-grid" id="hospitalsGrid"></div>
+    <a href="https://www.google.com/maps/search/hospitals+near+me" target="_blank"
+       rel="noopener" id="hospitalsFallbackLink" class="btn btn--ghost" hidden>
+      Open Nearby Hospitals in Google Maps
+    </a>
+  </div>
+
+  <div class="result-card" style="border: 1px solid rgba(225,82,60,0.3); background: rgba(225,82,60,0.02);">
+    <p style="font-size: 0.85rem; color: var(--color-muted, #5c6b65); margin: 0;">
+      <strong>Informational Disclaimer:</strong> This symptom checker provides an informational screening assessment based on pattern matching and is NOT a medical diagnosis. Always consult a qualified physician for clinical diagnosis.
+    </p>
+  </div>
+
+  <div class="result-actions">
+    <a href="{{ url_for('symptom_checker') }}" class="btn btn--ghost">Check different symptoms</a>
+    <a href="{{ url_for('dashboard') }}" class="btn btn--primary">Back to dashboard</a>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/hospitals.js') }}"></script>
+{% endblock %}

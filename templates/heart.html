@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% block title %}Heart Disease Prediction — MediPredict AI{% endblock %}
+
+{% block content %}
+<section class="form-page" style="max-width: 760px;">
+  <p class="form-page__eyebrow">Risk Screening</p>
+  <h1>Heart Disease Prediction</h1>
+  <p class="form-page__sub">
+    Answer honestly — it takes about a minute. We ask about your daily habits and general
+    health because those are the strongest known signals for heart disease risk. This gives
+    you an <strong>AI-assisted screening estimate</strong>, not a medical diagnosis — always
+    confirm with a doctor.
+  </p>
+
+  <form method="POST" action="/predict_heart">
+    <div class="form-grid">
+
+      <div class="field">
+        <label for="HighBP">High Blood Pressure</label>
+        <p class="field__help">Has a doctor ever told you your blood pressure is high?</p>
+        <select id="HighBP" name="HighBP">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="HighChol">High Cholesterol</label>
+        <p class="field__help">Has a doctor ever told you your cholesterol is high?</p>
+        <select id="HighChol" name="HighChol">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="CholCheck">Cholesterol Checked Recently</label>
+        <p class="field__help">Have you had a cholesterol blood test in the last 5 years?</p>
+        <select id="CholCheck" name="CholCheck">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+
+      <div class="field field--full bmi-calc">
+        <label>Body Mass Index (BMI)</label>
+        <p class="field__help">Don't know your BMI? Enter your height and weight below and we'll work it out for you.</p>
+        <div class="bmi-calc__toggle">
+          <button type="button" class="bmi-unit-btn active" data-unit="metric">cm / kg</button>
+          <button type="button" class="bmi-unit-btn" data-unit="imperial">ft-in / lb</button>
+        </div>
+        <div class="bmi-calc__inputs" data-unit-group="metric">
+          <input type="number" step="0.1" class="bmi-height-cm" placeholder="Height (cm)">
+          <input type="number" step="0.1" class="bmi-weight-kg" placeholder="Weight (kg)">
+        </div>
+        <div class="bmi-calc__inputs" data-unit-group="imperial" hidden>
+          <input type="number" class="bmi-height-ft" placeholder="Height (ft)">
+          <input type="number" class="bmi-height-in" placeholder="Height (in)">
+          <input type="number" step="0.1" class="bmi-weight-lb" placeholder="Weight (lb)">
+        </div>
+        <button type="button" class="btn btn--ghost bmi-calc-btn">Calculate BMI</button>
+        <p class="bmi-calc__result"></p>
+        <input type="number" step="0.1" id="BMI" name="BMI" class="bmi-final-value" placeholder="Your BMI will appear here" value="{{ '%.1f'|format(profile.bmi) if profile and profile.bmi else '' }}" readonly required>
+        <button type="button" class="bmi-manual-toggle">I already know my BMI — let me type it in</button>
+      </div>
+
+      <div class="field">
+        <label for="Smoker">Smoker</label>
+        <select id="Smoker" name="Smoker">
+          <option value="0" {% if profile and profile.smoking_status == 'Never Smoked' %}selected{% endif %}>No</option>
+          <option value="1" {% if profile and profile.smoking_status in ['Current Smoker', 'Former Smoker'] %}selected{% endif %}>Yes</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="Stroke">Previous Stroke</label>
+        <select id="Stroke" name="Stroke">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="Diabetes">Diabetes</label>
+        <select id="Diabetes" name="Diabetes">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="PhysActivity">Physical Activity</label>
+        <select id="PhysActivity" name="PhysActivity">
+          <option value="1" {% if profile and profile.physical_activity and profile.physical_activity != 'Sedentary' %}selected{% endif %}>Yes</option>
+          <option value="0" {% if profile and profile.physical_activity == 'Sedentary' %}selected{% endif %}>No</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="Fruits">Eat Fruits Regularly</label>
+        <select id="Fruits" name="Fruits">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="Veggies">Eat Vegetables Regularly</label>
+        <select id="Veggies" name="Veggies">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="HvyAlcoholConsump">Heavy Alcohol Consumption</label>
+        <select id="HvyAlcoholConsump" name="HvyAlcoholConsump">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="AnyHealthcare">Have Healthcare Coverage?</label>
+        <select id="AnyHealthcare" name="AnyHealthcare">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="NoDocbcCost">Couldn't Visit Doctor Due to Cost?</label>
+        <select id="NoDocbcCost" name="NoDocbcCost">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="GenHlth">General Health</label>
+        <select id="GenHlth" name="GenHlth">
+          <option value="1">Excellent</option>
+          <option value="2">Very Good</option>
+          <option value="3">Good</option>
+          <option value="4">Fair</option>
+          <option value="5">Poor</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="MentHlth">Mental Health (Days, past 30)</label>
+        <input type="number" id="MentHlth" name="MentHlth" min="0" max="30" required>
+      </div>
+
+      <div class="field">
+        <label for="PhysHlth">Physical Health (Days, past 30)</label>
+        <input type="number" id="PhysHlth" name="PhysHlth" min="0" max="30" required>
+      </div>
+
+      <div class="field">
+        <label for="DiffWalk">Difficulty Walking</label>
+        <select id="DiffWalk" name="DiffWalk">
+          <option value="0">No</option>
+          <option value="1">Yes</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="Sex">Gender</label>
+        <select id="Sex" name="Sex">
+          <option value="0" {% if profile and profile.gender == 'Female' %}selected{% endif %}>Female</option>
+          <option value="1" {% if profile and profile.gender == 'Male' %}selected{% endif %}>Male</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="Age">Age (Years)</label>
+        <input type="number" id="Age" name="Age" min="18" max="120" placeholder="e.g. 50" value="{{ profile.age if profile and profile.age else '' }}" required>
+      </div>
+
+      <div class="field">
+        <label for="Education">Education Level</label>
+        <select id="Education" name="Education">
+          <option value="1">1 — Never Attended School / Kindergarten</option>
+          <option value="2">2 — Elementary School (Grades 1-8)</option>
+          <option value="3">3 — Some High School (Grades 9-11)</option>
+          <option value="4" selected>4 — High School Graduate / GED</option>
+          <option value="5">5 — Some College / Technical School (1-3 yrs)</option>
+          <option value="6">6 — College Graduate (4+ yrs)</option>
+        </select>
+      </div>
+
+      <div class="field field--full">
+        <label for="Income">Annual Household Income</label>
+        <select id="Income" name="Income">
+          <option value="1">1 — Less than $10,000</option>
+          <option value="2">2 — $10,000 to $14,999</option>
+          <option value="3">3 — $15,000 to $19,999</option>
+          <option value="4">4 — $20,000 to $24,999</option>
+          <option value="5" selected>5 — $25,000 to $34,999</option>
+          <option value="6">6 — $35,000 to $49,999</option>
+          <option value="7">7 — $50,000 to $74,999</option>
+          <option value="8">8 — $75,000 or more</option>
+        </select>
+      </div>
+
+    </div>
+
+    <button type="submit" class="btn btn--primary btn--full btn--large">Predict Heart Disease Risk</button>
+  </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/bmi-calculator.js') }}"></script>
+{% endblock %}

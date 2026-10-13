@@ -1,0 +1,16 @@
+/* login.css
+   Small auth-page-only refinements layered on top of style.css.
+   Shared by login.html and register.html. */
+
+.form-page {
+  animation: form-page-in 0.5s ease both;
+}
+
+@keyframes form-page-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.form-page form .field:focus-within label {
+  color: var(--pulse);
+}

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}MediPredict AI{% endblock %}</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/features.css') }}">
+{% block extra_css %}{% endblock %}
+
+<script>
+  // Apply saved/system theme before first paint to avoid a flash of the wrong theme.
+  (function () {
+    try {
+      var saved = localStorage.getItem("mediPredictTheme");
+      var theme = saved || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- Vital-sign scroll progress indicator (signature element) -->
+<div class="pulse-progress" aria-hidden="true">
+  <svg viewBox="0 0 100 20" preserveAspectRatio="none">
+    <path class="pulse-progress__track" d="M0,10 L30,10 L36,2 L42,18 L48,10 L100,10" />
+    <path class="pulse-progress__fill" d="M0,10 L30,10 L36,2 L42,18 L48,10 L100,10" />
+  </svg>
+</div>
+
+<nav class="site-nav">
+  <a href="{{ url_for('landing') }}" class="site-nav__brand">
+    Medi<span>Predict</span><small>AI</small>
+  </a>
+
+  <div class="site-nav__links">
+    {% if session.get('user_email') %}
+      <a href="{{ url_for('dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('history') }}">History</a>
+      <a href="{{ url_for('model_performance') }}">Model Performance</a>
+      <a href="{{ url_for('faq') }}">FAQ</a>
+      <span class="site-nav__user">{{ session.get('user_name') }}</span>
+      <button type="button" id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">🌙 Dark mode</button>
+      <a href="{{ url_for('logout') }}" class="btn btn--ghost">Log out</a>
+    {% else %}
+      <a href="{{ url_for('model_performance') }}">Model Performance</a>
+      <a href="{{ url_for('faq') }}">FAQ</a>
+      <a href="{{ url_for('login') }}">Log in</a>
+      <button type="button" id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">🌙 Dark mode</button>
+      <a href="{{ url_for('register') }}" class="btn btn--ghost">Create account</a>
+    {% endif %}
+  </div>
+
+  <button class="site-nav__toggle" id="navToggle" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-stack">
+      {% for category, message in messages %}
+        <div class="flash flash--{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<main id="main-content">
+{% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">Medi<span>Predict</span> AI</div>
+    <p>Predictions are a screening aid, not a diagnosis. Always consult a licensed
+       clinician about your health.</p>
+    <p class="site-footer__meta">&copy; {{ 2026 }} MediPredict AI &middot; Built for
+       learning &amp; demonstration purposes</p>
+  </div>
+</footer>
+
+{% include "_chatbot.html" %}
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/theme-toggle.js') }}"></script>
+<script src="{{ url_for('static', filename='js/chatbot.js') }}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

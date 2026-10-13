@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — MediPredict AI{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="dash">
+
+    <div class="dash__header">
+        <p class="form-page__eyebrow">
+            Welcome, {{ session.get('user_name') }} 👋
+        </p>
+
+        <h1>Health Risk Prediction Dashboard</h1>
+
+        <p>
+            Select a prediction module below to assess health risks.
+            Our AI models analyze health indicators using empirical population data.
+        </p>
+    </div>
+
+    <!-- Analytics Stats Overview (Phase 11) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+      <div class="result-card" style="padding: 1.2rem;">
+        <small style="color: var(--color-muted, #5c6b65); font-weight: 500; text-transform: uppercase; font-size: 0.75rem;">Total Assessments</small>
+        <div style="font-size: 2rem; font-weight: 700; color: var(--color-ink, #10241f); margin-top: 4px;">{{ total_count }}</div>
+        <small style="color: var(--color-muted, #5c6b65);">Saved in your history</small>
+      </div>
+
+      <div class="result-card" style="padding: 1.2rem;">
+        <small style="color: var(--color-muted, #5c6b65); font-weight: 500; text-transform: uppercase; font-size: 0.75rem;">High Risk Screenings</small>
+        <div style="font-size: 2rem; font-weight: 700; color: var(--color-pulse, #E1523C); margin-top: 4px;">{{ high_risk_count }}</div>
+        <small style="color: var(--color-muted, #5c6b65);">Elevated screening flags</small>
+      </div>
+
+      <div class="result-card" style="padding: 1.2rem;">
+        <small style="color: var(--color-muted, #5c6b65); font-weight: 500; text-transform: uppercase; font-size: 0.75rem;">Low Risk Screenings</small>
+        <div style="font-size: 2rem; font-weight: 700; color: var(--color-leaf, #2E7D32); margin-top: 4px;">{{ low_risk_count }}</div>
+        <small style="color: var(--color-muted, #5c6b65);">Normal risk indicators</small>
+      </div>
+
+      <div class="result-card" style="padding: 1.2rem;">
+        <small style="color: var(--color-muted, #5c6b65); font-weight: 500; text-transform: uppercase; font-size: 0.75rem;">Model Performance</small>
+        <div style="font-size: 1.1rem; font-weight: 600; color: var(--color-ink, #10241f); margin-top: 6px;">
+          <a href="{{ url_for('model_performance') }}" style="color: var(--color-pulse, #E1523C); text-decoration: none;">View Model Metrics →</a>
+        </div>
+        <small style="color: var(--color-muted, #5c6b65);">Empirical dataset benchmarks</small>
+      </div>
+    </div>
+
+    <!-- Active Screening Modules Grid -->
+    <h2 style="font-size: 1.4rem; margin-bottom: 1rem;">Screening Modules</h2>
+    <div class="dash__grid">
+
+        <!-- Symptom Checker -->
+        <a href="{{ url_for('symptom_checker') }}" class="dash-card">
+            <span class="dash-card__icon">🩺</span>
+            <h3>Symptom Checker</h3>
+            <p>
+                Select your symptoms for AI differential pattern matching.
+            </p>
+        </a>
+
+        <!-- Diabetes -->
+        <a href="{{ url_for('diabetes') }}" class="dash-card">
+            <span class="dash-card__icon">🩸</span>
+            <h3>Diabetes Prediction</h3>
+            <p>
+                Assess diabetes risk using BRFSS health indicators.
+            </p>
+        </a>
+
+        <!-- Heart Disease -->
+        <a href="{{ url_for('heart') }}" class="dash-card">
+            <span class="dash-card__icon">❤️</span>
+            <h3>Heart Disease Prediction</h3>
+            <p>
+                Evaluate heart disease likelihood based on key parameters.
+            </p>
+        </a>
+
+        <!-- Stroke -->
+        <a href="{{ url_for('stroke') }}" class="dash-card">
+            <span class="dash-card__icon">🧠</span>
+            <h3>Stroke Prediction</h3>
+            <p>
+                Evaluate stroke risk using stroke dataset risk factors.
+            </p>
+        </a>
+
+    </div>
+
+    <!-- Charts Visualization Section (Phase 11) -->
+    {% if total_count > 0 %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 2.5rem; margin-bottom: 2rem;">
+      <div class="result-card" style="padding: 1.2rem;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Assessment Type Distribution</h3>
+        <canvas id="typeChart" style="max-height: 220px;"></canvas>
+      </div>
+
+      <div class="result-card" style="padding: 1.2rem;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Risk Summary Breakdown</h3>
+        <canvas id="riskChart" style="max-height: 220px;"></canvas>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="dash__history" style="margin-top: 2rem;">
+
+        <h2>
+            {{ 'Prediction History' if full_history else 'Recent Predictions' }}
+        </h2>
+
+        {% if history and history|length > 0 %}
+
+        <div style="overflow-x: auto;">
+          <table class="history-table" style="width: 100%;">
+              <thead>
+                  <tr>
+                      <th>Date</th>
+                      <th>Type</th>
+                      <th>Condition</th>
+                      <th>Result</th>
+                      <th>Risk Level</th>
+                      <th>Actions</th>
+                  </tr>
+              </thead>
+
+              <tbody>
+                  {% for row in history %}
+                  <tr>
+                      <td>{{ row['created_at'] }}</td>
+                      <td>{{ row['prediction_type'] }}</td>
+                      <td>{{ row['disease'] }}</td>
+                      <td><strong>{{ row['result'] }}</strong></td>
+                      <td>
+                        {% if row['risk_level'] == 'High Risk' %}
+                          <span class="result-badge result-badge--high" style="font-size: 0.75rem; padding: 2px 6px;">High Risk</span>
+                        {% elif row['risk_level'] == 'Low Risk' %}
+                          <span class="result-badge result-badge--low" style="font-size: 0.75rem; padding: 2px 6px;">Low Risk</span>
+                        {% else %}
+                          <span>{{ row['risk_level'] or '—' }}</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <a href="{{ url_for('view_history_detail', record_id=row['id']) }}" class="btn btn--ghost" style="padding: 3px 8px; font-size: 0.8rem;">Details</a>
+                      </td>
+                  </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+        </div>
+
+        <p style="margin-top:20px;">
+            <a href="{{ url_for('history') }}" class="btn btn--text">
+                View Complete History →
+            </a>
+        </p>
+
+        {% else %}
+
+        <div class="history-empty">
+            No predictions yet.<br><br>
+            Start by using the Symptom Checker or one of the disease prediction modules.
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% if total_count > 0 %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Type Chart
+    var typeCtx = document.getElementById("typeChart");
+    if (typeCtx) {
+      new Chart(typeCtx, {
+        type: "doughnut",
+        data: {
+          labels: {{ type_labels | tojson }},
+          datasets: [{
+            data: {{ type_counts | tojson }},
+            backgroundColor: ["#E1523C", "#2E7D32", "#10241F", "#5C6B65", "#0288D1"]
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    }
+
+    // Risk Chart
+    var riskCtx = document.getElementById("riskChart");
+    if (riskCtx) {
+      new Chart(riskCtx, {
+        type: "bar",
+        data: {
+          labels: ["High Risk", "Low Risk"],
+          datasets: [{
+            label: "Assessments",
+            data: [{{ high_risk_count }}, {{ low_risk_count }}],
+            backgroundColor: ["#E1523C", "#2E7D32"]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { beginAtZero: true, precision: 0 } }
+        }
+      });
+    }
+  });
+</script>
+{% endif %}
+{% endblock %}

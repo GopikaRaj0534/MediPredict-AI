@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}FAQ — MediPredict AI{% endblock %}
+
+{% block content %}
+<section class="form-page" style="max-width: 720px;">
+  <p class="form-page__eyebrow">Good to know</p>
+  <h1>Frequently asked questions</h1>
+  <p class="form-page__sub">How the predictions work, and what they don't do.</p>
+
+  <div class="faq-list">
+
+    <div class="faq-item">
+      <button type="button" class="faq-item__q">
+        Is this a real medical diagnosis?
+      </button>
+      <div class="faq-item__a">
+        <p>No. MediPredict AI is a screening tool that estimates risk based on patterns learned
+        from health survey data. It cannot replace a blood test, physical exam, or a doctor's
+        judgment. Treat a "high risk" result as a prompt to get properly tested, not as a
+        confirmed condition.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button type="button" class="faq-item__q">
+        How is the prediction generated?
+      </button>
+      <div class="faq-item__a">
+        <p>Each module (Diabetes, Heart Disease, Stroke) uses a machine learning model trained
+        on the CDC's BRFSS health survey data. You answer a set of lifestyle and health
+        questions, the model compares your answers to patterns it learned from thousands of
+        past records, and it returns a risk category plus a confidence score.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button type="button" class="faq-item__q">
+        What does "model confidence" mean?
+      </button>
+      <div class="faq-item__a">
+        <p>It's how strongly the model's internal probabilities favored the result it gave —
+        not a measure of medical certainty. A 60% confidence "high risk" result is worth
+        taking seriously, but so is a 95% one; both mean "get checked," just with different
+        strength of signal.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button type="button" class="faq-item__q">
+        I don't know my BMI — what do I do?
+      </button>
+      <div class="faq-item__a">
+        <p>Every form with a BMI field includes a built-in calculator. Enter your height and
+        weight (metric or imperial) and it's calculated for you automatically.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button type="button" class="faq-item__q">
+        Is my data kept private?
+      </button>
+      <div class="faq-item__a">
+        <p>Your prediction history is tied to your account and only visible to you when
+        logged in. This is a student/demonstration project, not a clinically certified
+        system — avoid entering information you wouldn't want stored in a learning project's
+        database.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button type="button" class="faq-item__q">
+        The result said "high risk" — what should I do next?
+      </button>
+      <div class="faq-item__a">
+        <p>Each result page shows tailored next-step suggestions. In general: book an
+        appointment with a doctor and mention which screening flagged a risk, so they know
+        which tests to prioritize.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".faq-item__q").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      btn.parentElement.classList.toggle("is-open");
+    });
+  });
+});
+</script>
+{% endblock %}

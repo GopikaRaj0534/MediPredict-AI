@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+{% block title %}MediPredict AI — Early Health Risk Prediction{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================ -->
+<!-- HERO -->
+<!-- ============================================================ -->
+<section class="hero">
+
+  <div class="hero__field" aria-hidden="true">
+    <svg class="hero__ecg" viewBox="0 0 1200 300" preserveAspectRatio="none">
+      <path class="hero__ecg-line"
+            d="M0,150 L200,150 L230,150 L250,40 L280,260 L310,90 L340,150
+               L520,150 L550,150 L570,60 L590,240 L610,150
+               L900,150 L930,150 L950,50 L970,250 L990,150 L1200,150"/>
+    </svg>
+  </div>
+
+  <div class="hero__content">
+
+    <p class="eyebrow">
+      AI Powered Health Risk Prediction
+    </p>
+
+    <h1 class="hero__title">
+      Detect Health Risks<br>
+      Before They Become<br>
+      <em>Serious Problems.</em>
+    </h1>
+
+    <p class="hero__subtitle">
+      MediPredict AI helps you assess the risk of Diabetes,
+      Heart Disease and Stroke using your health information,
+      lifestyle habits and symptoms. Get quick AI-powered
+      predictions to support early awareness.
+    </p>
+
+    <div class="hero__actions">
+
+      <a href="{{ url_for('register') }}" class="btn btn--primary">
+
+        Get Started
+
+      </a>
+
+      <a href="#modules" class="btn btn--text">
+
+        Explore Features ↓
+
+      </a>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- ============================================================ -->
+<!-- MODULES -->
+<!-- ============================================================ -->
+
+<section class="modules" id="modules">
+
+<div class="modules__header reveal">
+
+<h2>
+
+Four Smart Health Prediction Modules
+
+</h2>
+
+<p>
+
+Choose a prediction module and answer a few simple questions.
+
+</p>
+
+</div>
+
+<div class="modules__track">
+
+<article class="module-card module-card--symptom reveal">
+
+<span class="module-card__tag">
+
+Symptom Checker
+
+</span>
+
+<h3>
+
+Check Your Symptoms
+
+</h3>
+
+<p>
+
+Select the symptoms you're experiencing and discover the most likely condition.
+
+</p>
+
+<span class="module-card__icon">
+
+🩺
+
+</span>
+
+</article>
+
+
+
+<article class="module-card module-card--diabetes reveal">
+
+<span class="module-card__tag">
+
+Diabetes
+
+</span>
+
+<h3>
+
+Diabetes Risk Prediction
+
+</h3>
+
+<p>
+
+Estimate your diabetes risk using health and lifestyle information.
+
+</p>
+
+<span class="module-card__icon">
+
+🩸
+
+</span>
+
+</article>
+
+
+
+<article class="module-card module-card--heart reveal">
+
+<span class="module-card__tag">
+
+Heart Disease
+
+</span>
+
+<h3>
+
+Heart Disease Prediction
+
+</h3>
+
+<p>
+
+Analyze your heart disease risk using common health indicators.
+
+</p>
+
+<span class="module-card__icon">
+
+❤️
+
+</span>
+
+</article>
+
+
+
+<article class="module-card module-card--stroke reveal">
+
+<span class="module-card__tag">
+
+Stroke
+
+</span>
+
+<h3>
+
+Stroke Risk Prediction
+
+</h3>
+
+<p>
+
+Evaluate your stroke risk based on your health profile and lifestyle.
+
+</p>
+
+<span class="module-card__icon">
+
+🧠
+
+</span>
+
+</article>
+
+</div>
+
+</section>
+
+<!-- ============================================================ -->
+<!-- HOW IT WORKS -->
+<!-- ============================================================ -->
+
+<section class="how">
+
+<div class="how__step reveal">
+
+<span class="how__icon">
+
+📝
+
+</span>
+
+<h3>
+
+Enter Your Details
+
+</h3>
+
+<p>
+
+Provide simple health information, symptoms and lifestyle details.
+
+</p>
+
+</div>
+
+<div class="how__divider">
+
+<svg viewBox="0 0 200 20">
+
+<path d="M0,10 L80,10 L86,2 L92,18 L98,10 L200,10"/>
+
+</svg>
+
+</div>
+
+<div class="how__step reveal">
+
+<span class="how__icon">
+
+🤖
+
+</span>
+
+<h3>
+
+AI Analysis
+
+</h3>
+
+<p>
+
+Machine Learning models analyze your inputs and compare them with thousands of health records.
+
+</p>
+
+</div>
+
+<div class="how__divider">
+
+<svg viewBox="0 0 200 20">
+
+<path d="M0,10 L80,10 L86,2 L92,18 L98,10 L200,10"/>
+
+</svg>
+
+</div>
+
+<div class="how__step reveal">
+
+<span class="how__icon">
+
+📊
+
+</span>
+
+<h3>
+
+View Results
+
+</h3>
+
+<p>
+
+Receive your predicted risk level, confidence score and personalized health recommendations.
+
+</p>
+
+</div>
+
+</section>
+
+<!-- ============================================================ -->
+<!-- WHY MEDIPREDICT -->
+<!-- ============================================================ -->
+
+<section class="cta-band reveal">
+
+<h2>
+
+Why Choose MediPredict AI?
+
+</h2>
+
+<p>
+
+✔ AI-Powered Predictions<br>
+
+✔ Easy-to-Use Interface<br>
+
+✔ Early Health Risk Detection<br>
+
+✔ Secure Prediction History
+
+</p>
+
+<a href="{{ url_for('register') }}" class="btn btn--primary btn--large">
+
+Start Your Health Check
+
+</a>
+
+</section>
+
+{% endblock %}

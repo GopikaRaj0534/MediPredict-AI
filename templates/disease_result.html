@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}Result — MediPredict AI{% endblock %}
+
+{% block content %}
+<section class="result-page">
+  {% if result.risk == "High Risk" %}
+    <span class="result-badge result-badge--high">Elevated Risk</span>
+  {% elif result.risk == "Low Risk" %}
+    <span class="result-badge result-badge--low">Low Risk</span>
+  {% else %}
+    <span class="result-badge result-badge--na">{{ result.risk }}</span>
+  {% endif %}
+
+  <h1>{{ result.disease }}: {{ result.result }}</h1>
+  <p style="color: var(--color-muted, #5c6b65); margin-top: -0.5rem; margin-bottom: 1.5rem;">
+    Screened with <strong>{{ result.algorithm_used }}</strong> (Model {{ result.model_version }})
+  </p>
+
+  <!-- Risk Score & Probability Meter -->
+  <div class="result-card" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, rgba(225, 82, 60, 0.05) 0%, rgba(16, 36, 31, 0.03) 100%);">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+      <div>
+        <h3 style="margin: 0; font-size: 1.1rem;">Model Health Risk Indicator</h3>
+        <p style="margin: 4px 0 0 0; color: var(--color-muted, #5c6b65); font-size: 0.9rem;">
+          Calculated application screening index (0-100 scale)
+        </p>
+      </div>
+      <div style="font-size: 2.2rem; font-weight: 700; color: {% if result.risk == 'High Risk' %}var(--color-pulse, #E1523C){% else %}var(--color-leaf, #2E7D32){% endif %};">
+        {{ result.risk_score }} <span style="font-size: 1rem; color: var(--color-muted, #5c6b65); font-weight: 400;">/ 100</span>
+      </div>
+    </div>
+
+    {% if result.confidence %}
+      {% set tone = "high" if result.risk == "High Risk" else ("low" if result.risk == "Low Risk" else "medium") %}
+      <div class="risk-meter" style="margin-top: 1rem;">
+        <div class="risk-meter__track">
+          <div class="risk-meter__fill risk-meter__fill--{{ tone }}" style="width: {{ result.confidence }}%;"></div>
+        </div>
+        <div class="risk-meter__label">
+          <span>Statistical Model Probability</span>
+          <span>{{ result.confidence }}%</span>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if result.error %}
+  <div class="result-card">
+    <h3>Note</h3>
+    <p>{{ result.error }}</p>
+  </div>
+  {% else %}
+
+  <!-- Explainable AI (XAI) Contributing Factors -->
+  {% if result.contributing_factors %}
+  <div class="result-card">
+    <h3>Factors Contributing to This Prediction</h3>
+    <p style="font-size: 0.9rem; color: var(--color-muted, #5c6b65); margin-bottom: 1rem;">
+      The AI model assigned highest weight to the following key health indicators from your submission:
+    </p>
+    <div style="display: grid; gap: 10px;">
+      {% for factor in result.contributing_factors %}
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--color-surface-dim, #f4f6f5); border-radius: 8px; border-left: 4px solid {% if factor.impact == 'High Impact' %}var(--color-pulse, #E1523C){% else %}var(--color-muted, #5c6b65){% endif %};">
+        <div>
+          <strong style="font-size: 0.95rem;">{{ factor.label }}</strong>
+          <span style="display: block; font-size: 0.8rem; color: var(--color-muted, #5c6b65);">Submitted Value: {{ factor.val }}</span>
+        </div>
+        <span class="result-badge {% if factor.impact == 'High Impact' %}result-badge--high{% else %}result-badge--na{% endif %}" style="font-size: 0.75rem; padding: 3px 8px;">
+          {{ factor.impact }}
+        </span>
+      </div>
+      {% endfor %}
+    </div>
+    <p style="font-size: 0.8rem; color: var(--color-muted, #5c6b65); margin-top: 10px; font-style: italic;">
+      Note: Feature importance indicates statistical model weighting in population data, not direct individual medical causation.
+    </p>
+  </div>
+  {% endif %}
+
+  <div class="result-card">
+    <h3>What this means</h3>
+    <p>
+      {% if result.risk == "High Risk" %}
+        Your submitted values fall into the risk pattern associated with {{ result.disease.lower() }}.
+        This is an AI screening signal, not a diagnosis. We strongly recommend sharing this summary with a licensed doctor for clinical evaluation.
+      {% else %}
+        Your submitted values fall into the lower risk pattern for {{ result.disease.lower() }}.
+        Keep up with healthy habits and routine medical check-ups regardless of this result.
+      {% endif %}
+    </p>
+  </div>
+
+  {% if tips %}
+  <div class="result-card">
+    <h3>Recommended next steps</h3>
+    <div class="tips-grid">
+      {% for icon, tip in tips %}
+      <div class="tip-card">
+        <span class="tip-card__icon" aria-hidden="true">{{ icon }}</span>
+        <p>{{ tip }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if exercise_plan %}
+  <div class="result-card">
+    <h3>Personalized exercise recommendation</h3>
+    <div class="exercise-summary">
+      <div class="exercise-stat">Duration<b>{{ exercise_plan.duration }}</b></div>
+      <div class="exercise-stat">Frequency<b>{{ exercise_plan.frequency }}</b></div>
+      <div class="exercise-stat">Intensity<b>{{ exercise_plan.intensity }}</b></div>
+    </div>
+    <div class="exercise-schedule">
+      {% for day in exercise_plan.schedule %}
+      <div class="exercise-day">
+        <span class="exercise-day__label">{{ day.day }}</span>
+        <span class="exercise-day__focus">{{ day.focus }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% if exercise_plan.safety_tips %}
+    <p><strong>Safety tips</strong></p>
+    <ul class="exercise-safety">
+      {% for tip in exercise_plan.safety_tips %}
+      <li>{{ tip }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% endif %}
+  {% endif %}
+
+  <div class="result-card">
+    <h3>Download your report</h3>
+    <p>Get a PDF summary of this assessment — including the AI analysis, factor contributions, and exercise plan — to save or share with your doctor.</p>
+    <a href="{{ url_for('download_report') }}" class="btn btn--primary report-download">
+      ⬇ Download PDF Report
+    </a>
+  </div>
+
+  <div class="result-card" id="hospitalsSection">
+    <div class="hospitals-intro">
+      <h3>Nearby hospitals</h3>
+      <button type="button" id="findHospitalsBtn" class="btn btn--ghost">Find hospitals near me</button>
+    </div>
+    <p class="hospitals-status" id="hospitalsStatus">
+      We'll ask your browser for permission to use your location.
+    </p>
+    <div class="hospitals-grid" id="hospitalsGrid"></div>
+    <a href="https://www.google.com/maps/search/hospitals+near+me" target="_blank"
+       rel="noopener" id="hospitalsFallbackLink" class="btn btn--ghost" hidden>
+      Open Nearby Hospitals in Google Maps
+    </a>
+  </div>
+
+  <div class="result-card" style="border: 1px solid rgba(225,82,60,0.3); background: rgba(225,82,60,0.02);">
+    <p style="font-size: 0.85rem; color: var(--color-muted, #5c6b65); margin: 0;">
+      <strong>Informational Disclaimer:</strong> MediPredict AI provides statistical screening estimates derived from population datasets. Predictions are not medical diagnoses. Always consult a qualified healthcare professional regarding any health concerns.
+    </p>
+  </div>
+
+  <div class="result-actions">
+    <a href="{{ url_for('dashboard') }}" class="btn btn--ghost">Back to dashboard</a>
+    <a href="{{ url_for('history') }}" class="btn btn--primary">View my history</a>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/hospitals.js') }}"></script>
+{% endblock %}
